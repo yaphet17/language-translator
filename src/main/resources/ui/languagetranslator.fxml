@@ -35,7 +35,7 @@
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                <children>
                   <ProgressIndicator fx:id="indicator" prefHeight="33.0" prefWidth="24.0" visible="false" />
-                  <Label fx:id="statusLabel" prefHeight="16.0" prefWidth="462.0" textFill="#fc2605">
+                  <Label fx:id="statusLabel" prefHeight="16.0" prefWidth="462.0" textFill="#0BC902">
                      <font>
                         <Font size="15.0" />
                      </font>
