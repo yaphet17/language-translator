@@ -137,12 +137,9 @@ public class LanguageTranslatorController {
 
     @FXML
     public void translate() {
-        if(!isTargetLangSelected()){
+        if(!isReadyToTranslate()){
             return;
         }
-        //clear status label if there are no errors
-        statusLabel.setText("");
-
         service = new Service<>() {
             @Override
             protected Task<String> createTask() {
@@ -158,33 +155,12 @@ public class LanguageTranslatorController {
 
             }
         };
-        indicator.progressProperty().bind(service.progressProperty());
         service.start();
         if(service.isRunning()){
-            indicator.setVisible(true);
-            showSuccessMsg("translating text...");
-            //prevent double-clicking
-            translateBtn.setDisable(true);
+            serviceRunning();
         }
-        //automatic retry for 3 times
-        AtomicInteger fails = new AtomicInteger();
-        service.setOnFailed(e -> {
-            if (fails.get() <= 3) {
-                fails.getAndIncrement();
-                service.reset();
-                service.start();
-            } else {
-                showErrorMsg("Couldn't translate source text");
-            }
-            indicator.setVisible(false);
-            translateBtn.setDisable(false);
-        });
-        service.setOnSucceeded(e -> Platform.runLater(() -> {
-            translationBox.setText(service.getValue());
-            statusLabel.setText("");
-            indicator.setVisible(false);
-            translateBtn.setDisable(false);
-        }));
+        service.setOnFailed(e -> serviceFailed(service));
+        service.setOnSucceeded(e -> Platform.runLater(() -> serviceSucceeded()));
     }
 
     @FXML
@@ -257,6 +233,24 @@ public class LanguageTranslatorController {
         fileChooser.setTitle("Save");
         return fileChooser.showSaveDialog(chooseFile);
     }
+    private boolean isReadyToTranslate() {
+        if(isSourceTextEmpty()){
+            return false;
+        }
+        if(!isTargetLangSelected()){
+            return false;
+        }
+        //clear status label if there are no errors
+        statusLabel.setText("");
+        return true;
+    }
+    private boolean isSourceTextEmpty() {
+        if(sourceBox.getText().isBlank()){
+            showErrorMsg("Enter source text");
+            return true;
+        }
+        return false;
+    }
     private boolean isTargetLangSelected() {
         //source language are selected by default so no need to check it
         if(targetCombo.getSelectionModel().isEmpty()){
@@ -264,6 +258,32 @@ public class LanguageTranslatorController {
             return false;
         }
         return true;
+    }
+    private void serviceRunning(){
+        indicator.setVisible(true);
+        showSuccessMsg("translating text...");
+        //prevent double-clicking
+        translateBtn.setDisable(true);
+    }
+    private void serviceFailed(Service<String> service){
+        //automatic retry for 3 times
+        AtomicInteger fails = new AtomicInteger();
+        if (fails.get() <= 3) {
+            fails.getAndIncrement();
+            service.reset();
+            service.start();
+        } else {
+            showErrorMsg("Couldn't translate source text");
+        }
+        indicator.setVisible(false);
+        translateBtn.setDisable(false);
+
+    }
+    private void serviceSucceeded() {
+        translationBox.setText(service.getValue());
+        statusLabel.setText("");
+        indicator.setVisible(false);
+        translateBtn.setDisable(false);
     }
     private void showErrorMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #FB1705");
