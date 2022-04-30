@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Properties>
+        <Property name="log-path">logs</Property>
+        <Property name="archive">${log-path}/archive</Property>
+        <Property name="CONSOLE_LOG_PATTERN">
+            <!---[${LOG_LEVEL_PATTERN:-%p}]}{FATAL=red, ERROR=red, WARN=yellow, INFO=blue, DEBUG=green, TRACE=green} %d{yyyy-MM-dd HH:mm:ss.SSS} %t: %m%n%ex-->
+            [${LOG_LEVEL_PATTERN:-%p}] %d{yyyy-MM-dd HH:mm:ss.SSS}--- %t: %m%n%ex
+        </Property>
+        <Property name="FILE_LOG_PATTERN">
+            [${LOG_LEVEL_PATTERN:-%p}] %d{yyyy-MM-dd HH:mm:ss.SSS}--- %t: %m%n%ex
+        </Property>
+    </Properties>
+    <CustomLevels>
+        <CustomLevel name="ACCESS" intLevel="450"/>
+    </CustomLevels>
+    <Appenders>
+        <Console name="Console-Appender" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="${CONSOLE_LOG_PATTERN}"/>
+            <!--            <LevelRangeFilter minLevel="WARN" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        </Console>
+        <RollingFile name="ErrorFile-Appender" fileName="${log-path}/error_log.log" filePattern="${archive}/error_file.log%d{yyyy-MM-dd HH:mm:ss.SSS}">
+            <!--            <LevelRangeFilter minLevel="FATAL" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>-->
+            <PatternLayout pattern="${FILE_LOG_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.yaphet.languagetranslator" level="debug" additivity="false">
+            <AppenderRef ref="ErrorFile-Appender" level="error"/>
+        </Logger>
+        <Root level="debug">
+            <AppenderRef ref="Console-Appender" level="debug"/>
+        </Root>
+    </Loggers>
+</Configuration>
