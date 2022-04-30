@@ -176,23 +176,26 @@ public class LanguageTranslatorController {
     @FXML
     public void export() {
         try {
-            File directory=chooseSaveFile();
-            if(directory==null){
+            File file=chooseSaveFile();
+            if(file==null){
                 showErrorMsg("Directory not selected");
                 return;
             }
-            String path=directory.getAbsolutePath();
-            FileWriter fileWriter=new FileWriter(path);
-            BufferedWriter writer=new BufferedWriter(fileWriter);
-            writer.write(translationBox.getText());
-            writer.close();
-            fileWriter.close();
+            String path=file.getAbsolutePath();
+            writeToFile(path);
             showSuccessMsg(String.format("File exported to %s",path));
         } catch (IOException e) {
             showErrorMsg("some error occurred while exporting file");
             logger.error(e.getMessage());
         }
 
+    }
+    private void writeToFile(String path) throws IOException {
+        FileWriter fileWriter=new FileWriter(path);
+        BufferedWriter writer=new BufferedWriter(fileWriter);
+        writer.write(translationBox.getText());
+        writer.close();
+        fileWriter.close();
     }
     @FXML
     public void countCharacters(KeyEvent e) {
