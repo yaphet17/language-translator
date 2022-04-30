@@ -97,42 +97,52 @@ public class LanguageTranslatorController {
 
     @FXML
     public void browse() {
-
         try {
-            File file;
-            //check if path is specified in browse field
-            if(!browseField.getText().equals("")){
-                file=new File(browseField.getText());
-                if(!file.exists()){
-                    showErrorMsg("File not found on specified path");
-                    return;
-                }
-            }else{
-                file=chooseFile();
-            }
+            File file=getSelectedFile();
             if(file==null){
-                showErrorMsg("File not selected");
                 return;
             }
-            FileInputStream fis=new FileInputStream(file);
-            BufferedReader reader=new BufferedReader(new InputStreamReader(fis));
             String path=file.getAbsolutePath();
-            //show file path in browse text field
             browseField.setText(path);
-            StringBuilder builder=new StringBuilder();
-            String line;
-            while((line=reader.readLine())!=null){
-                builder.append(line);
-            }
-            reader.close();
-            fis.close();
+
+            String fileContent=getFileContent(file);
             //show file content in source textarea
-            sourceBox.setText(builder.toString());
+            sourceBox.setText(fileContent);
             showSuccessMsg(String.format("File imported from %s",path));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+    }
+    private File getSelectedFile(){
+        File file;
+        //check if path is specified in browse field else open choose file window
+        if(!browseField.getText().equals("")){
+            file=new File(browseField.getText());
+            if(!file.exists()){
+                showErrorMsg("File not found on specified path");
+            }
+        }else{
+            file=chooseFile();
+            if(file==null){
+                showErrorMsg("File not selected");
+            }
+        }
+        return file;
+    }
+
+    private String getFileContent(File file) throws IOException {
+        FileInputStream fis=new FileInputStream(file);
+        BufferedReader reader=new BufferedReader(new InputStreamReader(fis));
+
+        StringBuilder builder=new StringBuilder();
+        String line;
+        while((line=reader.readLine())!=null){
+            builder.append(line);
+        }
+        reader.close();
+        fis.close();
+        return builder.toString();
     }
 
     @FXML
