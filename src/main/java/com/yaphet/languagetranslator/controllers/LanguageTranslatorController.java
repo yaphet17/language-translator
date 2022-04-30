@@ -92,7 +92,18 @@ public class LanguageTranslatorController {
             sourceCombo.getSelectionModel().select(defaultSourceLang);
         }
 
+        //TODO: bind progress indicator with statusLabel
 
+    }
+
+    private List<String> getLanguageList() {
+        try {
+            Map<String, String> map = new JsonToMap(languageResource).getMap();
+            return new ArrayList<>(map.keySet());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return null;
     }
 
     @FXML
@@ -130,7 +141,12 @@ public class LanguageTranslatorController {
         }
         return file;
     }
-
+    private File chooseFile(){
+        FileChooser fileChooser=new FileChooser();
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
+        fileChooser.setTitle("Choose file");
+        return fileChooser.showOpenDialog(chooseFile);
+    }
     private String getFileContent(File file) throws IOException {
         FileInputStream fis=new FileInputStream(file);
         BufferedReader reader=new BufferedReader(new InputStreamReader(fis));
@@ -170,81 +186,7 @@ public class LanguageTranslatorController {
             serviceRunning();
         }
         service.setOnFailed(e -> serviceFailed(service));
-        service.setOnSucceeded(e -> Platform.runLater(() -> serviceSucceeded()));
-    }
-
-    @FXML
-    public void export() {
-        try {
-            File file=chooseSaveFile();
-            if(file==null){
-                showErrorMsg("Directory not selected");
-                return;
-            }
-            String path=file.getAbsolutePath();
-            writeToFile(path);
-            showSuccessMsg(String.format("File exported to %s",path));
-        } catch (IOException e) {
-            showErrorMsg("some error occurred while exporting file");
-            logger.error(e.getMessage());
-        }
-
-    }
-    private void writeToFile(String path) throws IOException {
-        FileWriter fileWriter=new FileWriter(path);
-        BufferedWriter writer=new BufferedWriter(fileWriter);
-        writer.write(translationBox.getText());
-        writer.close();
-        fileWriter.close();
-    }
-    @FXML
-    public void countCharacters(KeyEvent e) {
-        //add (Ctrl+Enter)shortcut key to fire translateBtn
-        if(e.isControlDown()&&e.getCode()== KeyCode.ENTER){
-            translateBtn.fire();
-            return;
-        }
-        //show number of characters in the source textarea
-        int len = sourceBox.getText().length();
-        if (len > MAXIMUM_LENGTH) {
-            showSuccessMsg("Maximum character reached");
-        }
-        characterLabel.setText(String.format("%d characters",len));
-    }
-    @FXML
-    public void copyToClipboard(){
-        Clipboard clipboard=Clipboard.getSystemClipboard();
-        Map<DataFormat,Object> map=new HashMap<>();
-        map.put(DataFormat.PLAIN_TEXT,translationBox.getText());
-        clipboard.setContent(map);
-        showSuccessMsg("copied to clipboard");
-    }
-    @FXML
-    public void clearFields(){
-        sourceBox.clear();
-        translationBox.clear();
-    }
-    private List<String> getLanguageList() {
-
-        try {
-            Map<String, String> map = new JsonToMap(languageResource).getMap();
-            return new ArrayList<>(map.keySet());
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return null;
-    }
-    private File chooseFile(){
-        FileChooser fileChooser=new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
-        fileChooser.setTitle("Choose file");
-        return fileChooser.showOpenDialog(chooseFile);
-    }
-    private File chooseSaveFile(){
-        FileChooser fileChooser=new FileChooser();
-        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
-        fileChooser.setTitle("Save");
-        return fileChooser.showSaveDialog(chooseFile);
+        service.setOnSucceeded(e -> Platform.runLater(this::serviceSucceeded));
     }
     private boolean isReadyToTranslate() {
         if(isSourceTextEmpty()){
@@ -297,6 +239,64 @@ public class LanguageTranslatorController {
         statusLabel.setText("");
         indicator.setVisible(false);
         translateBtn.setDisable(false);
+    }
+
+    @FXML
+    public void export() {
+        try {
+            File file=chooseSaveFile();
+            if(file==null){
+                showErrorMsg("Directory not selected");
+                return;
+            }
+            String path=file.getAbsolutePath();
+            writeToFile(path);
+            showSuccessMsg(String.format("File exported to %s",path));
+        } catch (IOException e) {
+            showErrorMsg("some error occurred while exporting file");
+            logger.error(e.getMessage());
+        }
+
+    }
+    private File chooseSaveFile(){
+        FileChooser fileChooser=new FileChooser();
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
+        fileChooser.setTitle("Save");
+        return fileChooser.showSaveDialog(chooseFile);
+    }
+    private void writeToFile(String path) throws IOException {
+        FileWriter fileWriter=new FileWriter(path);
+        BufferedWriter writer=new BufferedWriter(fileWriter);
+        writer.write(translationBox.getText());
+        writer.close();
+        fileWriter.close();
+    }
+    @FXML
+    public void countCharacters(KeyEvent e) {
+        //add (Ctrl+Enter)shortcut key to fire translateBtn
+        if(e.isControlDown()&&e.getCode()== KeyCode.ENTER){
+            translateBtn.fire();
+            return;
+        }
+        //show number of characters in the source textarea
+        int len = sourceBox.getText().length();
+        if (len > MAXIMUM_LENGTH) {
+            showSuccessMsg("Maximum character reached");
+        }
+        characterLabel.setText(String.format("%d characters",len));
+    }
+    @FXML
+    public void copyToClipboard(){
+        Clipboard clipboard=Clipboard.getSystemClipboard();
+        Map<DataFormat,Object> map=new HashMap<>();
+        map.put(DataFormat.PLAIN_TEXT,translationBox.getText());
+        clipboard.setContent(map);
+        showSuccessMsg("copied to clipboard");
+    }
+    @FXML
+    public void clearFields(){
+        sourceBox.clear();
+        translationBox.clear();
     }
     private void showErrorMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #FB1705");
