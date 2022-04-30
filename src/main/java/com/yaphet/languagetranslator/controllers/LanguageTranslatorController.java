@@ -81,6 +81,7 @@ public class LanguageTranslatorController {
         if (languageList != null) {
             sourceCombo.getItems().addAll(languageList);
             targetCombo.getItems().addAll(languageList);
+            targetCombo.getItems().remove(0);
         }
 
         //Make combo boxes searchable
@@ -91,8 +92,6 @@ public class LanguageTranslatorController {
         if(defaultSourceLang!=null){
             sourceCombo.getSelectionModel().select(defaultSourceLang);
         }
-
-        //TODO: bind progress indicator with statusLabel
 
     }
 
@@ -183,6 +182,7 @@ public class LanguageTranslatorController {
             }
         };
         service.start();
+        statusLabel.textProperty().bind(service.messageProperty());
         if(service.isRunning()){
             serviceRunning();
         }
@@ -197,7 +197,7 @@ public class LanguageTranslatorController {
             return false;
         }
         //clear status label if there are no errors
-        statusLabel.setText("");
+        setTextIfNotBound("");
         return true;
     }
     private boolean isSourceTextEmpty() {
@@ -217,7 +217,6 @@ public class LanguageTranslatorController {
     }
     private void serviceRunning(){
         indicator.setVisible(true);
-        showSuccessMsg("translating text...");
         //prevent double-clicking
         translateBtn.setDisable(true);
     }
@@ -229,15 +228,17 @@ public class LanguageTranslatorController {
             service.reset();
             service.start();
         } else {
+            statusLabel.textProperty().unbind();
             showErrorMsg("Couldn't translate source text");
+            indicator.setVisible(false);
+            translateBtn.setDisable(false);
         }
-        indicator.setVisible(false);
-        translateBtn.setDisable(false);
+
 
     }
     private void serviceSucceeded() {
+        statusLabel.textProperty().unbind();
         translationBox.setText(service.getValue());
-        statusLabel.setText("");
         indicator.setVisible(false);
         translateBtn.setDisable(false);
     }
@@ -282,7 +283,7 @@ public class LanguageTranslatorController {
         //show number of characters in the source textarea
         int len = sourceBox.getText().length();
         if (len > MAXIMUM_LENGTH) {
-            showSuccessMsg("Maximum character reached");
+            showErrorMsg("Maximum character reached");
         }
         characterLabel.setText(String.format("%d characters",len));
     }
@@ -301,11 +302,16 @@ public class LanguageTranslatorController {
     }
     private void showErrorMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #FB1705");
-        statusLabel.setText(msg);
+        setTextIfNotBound(msg);
     }
     private void showSuccessMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #0BC902");
-        statusLabel.setText(msg);
+        setTextIfNotBound(msg);
+    }
+    private void setTextIfNotBound(String msg){
+        if(!statusLabel.textProperty().isBound()){
+            statusLabel.setText(msg);
+        }
     }
 
 }

@@ -54,13 +54,11 @@ public class Translator extends Task<String> {
     }
 
 
-
-
-
     @Override
     protected String call() throws InvalidLanguageCodeException, ErrorStatusCodeException {
 
         try {
+            updateMessage("processing text");
             String processedText=textPreprocessor.process(text);
             String sourceLang=getLanguageCode(from);
             String targetLang=getLanguageCode(to);
@@ -68,7 +66,7 @@ public class Translator extends Task<String> {
                 logger.error("Error occurred while retrieving language code");
                 return null;
             }
-            this.failed();
+            updateMessage("translating");
             HttpResponse<String> response = Unirest.get(URL)
                     .header("content-type","application/x-www-form-urlencoded").
                     header("Accept-Encoding","application/json")
@@ -88,8 +86,10 @@ public class Translator extends Task<String> {
         return null;
     }
     private String extractText(String json){
+        updateMessage("extracting response");
         Gson gson=new Gson();
         Map<String,String> map=gson.fromJson(json,Map.class);
+        updateMessage("");
         return  URLDecoder.decode(map.get("translatedText"),StandardCharsets.UTF_8);
     }
     private String getLanguageCode(String language) throws InvalidLanguageCodeException {
