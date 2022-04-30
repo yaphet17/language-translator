@@ -95,21 +95,21 @@ public class LanguageTranslatorController {
 
     }
 
-    private List<String> getLanguageList() {
-
-        try {
-            Map<String, String> map = new JsonToMap(languageResource).getMap();
-            return new ArrayList<>(map.keySet());
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return null;
-    }
-
     @FXML
     public void browse() {
+
         try {
-            File file=chooseFile();
+            File file;
+            //check if path is specified in browse field
+            if(!browseField.getText().equals("")){
+                file=new File(browseField.getText());
+                if(!file.exists()){
+                    showErrorMsg("File not found on specified path");
+                    return;
+                }
+            }else{
+                file=chooseFile();
+            }
             if(file==null){
                 showErrorMsg("File not selected");
                 return;
@@ -235,7 +235,16 @@ public class LanguageTranslatorController {
         sourceBox.clear();
         translationBox.clear();
     }
+    private List<String> getLanguageList() {
 
+        try {
+            Map<String, String> map = new JsonToMap(languageResource).getMap();
+            return new ArrayList<>(map.keySet());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return null;
+    }
     private File chooseFile(){
         FileChooser fileChooser=new FileChooser();
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
