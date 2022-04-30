@@ -12,7 +12,6 @@ import com.yaphet.languagetranslator.utilities.PropertiesLoader;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -44,7 +43,7 @@ public class Translator extends Task<String> {
             languageResource=new ClassPathResource(resourceName);
             URL=properties.getProperty("translator.api.wep-app.url");
         } catch (IOException e) {
-            logger.error("failed to load properties file");
+            logger.error(e.getMessage());
             throw new PropertiesFileNotFoundException(propertiesFile);
         }
         this.from = from;

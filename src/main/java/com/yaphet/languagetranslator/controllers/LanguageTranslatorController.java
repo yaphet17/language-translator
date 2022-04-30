@@ -121,7 +121,7 @@ public class LanguageTranslatorController {
             sourceBox.setText(fileContent);
             showSuccessMsg(String.format("File imported from %s",path));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
 
     }
@@ -169,12 +169,13 @@ public class LanguageTranslatorController {
         service = new Service<>() {
             @Override
             protected Task<String> createTask() {
-                Translator translator;
+                Translator translator=null;
                 try {
                     translator = new Translator(sourceCombo.getSelectionModel().getSelectedItem(),
                             targetCombo.getSelectionModel().getSelectedItem(),
                             sourceBox.getText());
                 } catch (PropertiesFileNotFoundException e) {
+                    logger.error(e.getMessage());
                     throw new RuntimeException(e);
                 }
                 return translator;
@@ -186,7 +187,7 @@ public class LanguageTranslatorController {
             serviceRunning();
         }
         service.setOnFailed(e -> serviceFailed(service));
-        service.setOnSucceeded(e -> Platform.runLater(this::serviceSucceeded));
+        service.setOnSucceeded(e -> Platform.runLater(()->serviceSucceeded()));
     }
     private boolean isReadyToTranslate() {
         if(isSourceTextEmpty()){
