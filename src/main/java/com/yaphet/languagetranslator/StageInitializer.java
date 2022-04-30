@@ -40,6 +40,7 @@ public class StageInitializer implements ApplicationListener<StageReadyEvent> {
             Scene scene=new Scene(parent,840,620);
             stage.setScene(scene);
             stage.setTitle(stageTitle);
+            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             logger.error(e.getMessage());
