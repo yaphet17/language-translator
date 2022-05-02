@@ -19,16 +19,16 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
-public class Translator extends Task<String> {
+public class Translator extends Task<Optional<String>> {
 
 
     private final ClassPathResource languageResource;
 
     private  final TextPreprocessor textPreprocessor;
     private final Logger logger= LogManager.getLogger("com.yaphet.languagetranslator");
-
     private  final String URL;
     private final String from;
     private final String to;
@@ -55,8 +55,9 @@ public class Translator extends Task<String> {
 
 
     @Override
-    protected String call() throws InvalidLanguageCodeException, ErrorStatusCodeException {
+    protected Optional<String> call() throws InvalidLanguageCodeException, ErrorStatusCodeException {
 
+        Optional<String> returnValue=Optional.empty();
         try {
             updateMessage("processing text");
             String processedText=textPreprocessor.process(text);
@@ -78,12 +79,12 @@ public class Translator extends Task<String> {
                 logger.error(String.format("Translation call returns error code=%d",statusCode));
                 throw new ErrorStatusCodeException(statusCode);
             }
-            //decode and return url
-            return extractText(response.getBody());
+            //decode and extract url
+           returnValue=Optional.of(extractText(response.getBody()));
         } catch (UnirestException e) {
             logger.error(e.getMessage());
         }
-        return null;
+        return returnValue;
     }
     private String extractText(String json){
         updateMessage("extracting response");

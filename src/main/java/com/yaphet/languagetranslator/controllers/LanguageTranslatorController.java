@@ -31,9 +31,7 @@ public class LanguageTranslatorController {
 
     private  Stage chooseFile;
     private ClassPathResource languageResource = null;
-    private final String resourceName = "application.properties";
-    private Service<String> service;
-    private final int MAXIMUM_LENGTH = 5000;
+    private Service<Optional<String>> service;
 
 
     private  String defaultSourceLang;
@@ -64,6 +62,7 @@ public class LanguageTranslatorController {
 
     public LanguageTranslatorController() {
         try {
+            String resourceName = "application.properties";
             Properties properties = PropertiesLoader.loadProperties(resourceName);
             languageResource = new ClassPathResource(properties.getProperty("translator.api.languages.json"));
             defaultSourceLang=properties.getProperty("translator.api.default.source-lang");
@@ -167,8 +166,8 @@ public class LanguageTranslatorController {
         }
         service = new Service<>() {
             @Override
-            protected Task<String> createTask() {
-                Translator translator=null;
+            protected Task<Optional<String>> createTask() {
+                Translator translator;
                 try {
                     translator = new Translator(sourceCombo.getSelectionModel().getSelectedItem(),
                             targetCombo.getSelectionModel().getSelectedItem(),
@@ -182,7 +181,8 @@ public class LanguageTranslatorController {
             }
         };
         service.start();
-        statusLabel.textProperty().bind(service.messageProperty());
+        bindServiceToStatus();
+        
         if(service.isRunning()){
             serviceRunning();
         }
@@ -215,12 +215,17 @@ public class LanguageTranslatorController {
         }
         return true;
     }
+    private void bindServiceToStatus(){
+    	 //show service status value in status label
+        statusLabel.setStyle("-fx-text-fill: #0BC902");
+        statusLabel.textProperty().bind(service.messageProperty());
+    }
     private void serviceRunning(){
         indicator.setVisible(true);
         //prevent double-clicking
         translateBtn.setDisable(true);
     }
-    private void serviceFailed(Service<String> service){
+    private void serviceFailed(Service<Optional<String>> service){
         //automatic retry for 3 times
         AtomicInteger fails = new AtomicInteger();
         if (fails.get() <= 3) {
@@ -238,9 +243,15 @@ public class LanguageTranslatorController {
     }
     private void serviceSucceeded() {
         statusLabel.textProperty().unbind();
-        translationBox.setText(service.getValue());
+        Optional<String > translatedText=service.getValue();
+        if(translatedText.isPresent()){
+            translationBox.setText(translatedText.get());
+        }else{
+
+        }
         indicator.setVisible(false);
         translateBtn.setDisable(false);
+
     }
 
     @FXML
@@ -282,6 +293,7 @@ public class LanguageTranslatorController {
         }
         //show number of characters in the source textarea
         int len = sourceBox.getText().length();
+        int MAXIMUM_LENGTH = 5000;
         if (len > MAXIMUM_LENGTH) {
             showErrorMsg("Maximum character reached");
         }
@@ -299,6 +311,16 @@ public class LanguageTranslatorController {
     public void clearFields(){
         sourceBox.clear();
         translationBox.clear();
+    }
+    @FXML
+    public void cancelTranslation(){
+        if(service!=null){
+            if(service.isRunning()){
+                service.cancel();
+                showSuccessMsg("translation cancelled");
+            }
+
+        }
     }
     private void showErrorMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #FB1705");
