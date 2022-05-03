@@ -97,7 +97,13 @@
                   <Button fx:id="exportBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#export" prefHeight="30.0" prefWidth="133.0" text="Export as .txt">
                      <graphic>
                         <FontAwesomeIconView glyphName="DOWNLOAD" size="14" />
-                     </graphic></Button>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="cancelBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#cancelTranslation" prefHeight="30.0" prefWidth="133.0" text="Cancel">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="STOP" size="14" />
+                     </graphic>
+                  </Button>
                </children>
                <padding>
                   <Insets left="20.0" />

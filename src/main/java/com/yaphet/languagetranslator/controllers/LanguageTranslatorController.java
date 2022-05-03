@@ -187,7 +187,8 @@ public class LanguageTranslatorController {
             serviceRunning();
         }
         service.setOnFailed(e -> serviceFailed(service));
-        service.setOnSucceeded(e -> Platform.runLater(()->serviceSucceeded()));
+        service.setOnSucceeded(e -> Platform.runLater(this::serviceSucceeded));
+        service.setOnCancelled(e-> terminatedTranslation("Translation process terminated"));
     }
     private boolean isReadyToTranslate() {
         if(isSourceTextEmpty()){
@@ -197,7 +198,7 @@ public class LanguageTranslatorController {
             return false;
         }
         //clear status label if there are no errors
-        setTextIfNotBound("");
+        unbindAndSetText("");
         return true;
     }
     private boolean isSourceTextEmpty() {
@@ -220,6 +221,11 @@ public class LanguageTranslatorController {
         statusLabel.setStyle("-fx-text-fill: #0BC902");
         statusLabel.textProperty().bind(service.messageProperty());
     }
+    private void terminatedTranslation(String msg){
+        showErrorMsg(msg);
+        indicator.setVisible(false);
+        translateBtn.setDisable(false);
+    }
     private void serviceRunning(){
         indicator.setVisible(true);
         //prevent double-clicking
@@ -233,21 +239,17 @@ public class LanguageTranslatorController {
             service.reset();
             service.start();
         } else {
-            statusLabel.textProperty().unbind();
-            showErrorMsg("Couldn't translate source text");
-            indicator.setVisible(false);
-            translateBtn.setDisable(false);
+           terminatedTranslation("Couldn't translate source text");
         }
-
-
     }
+
     private void serviceSucceeded() {
-        statusLabel.textProperty().unbind();
         Optional<String > translatedText=service.getValue();
         if(translatedText.isPresent()){
             translationBox.setText(translatedText.get());
+            showSuccessMsg("");
         }else{
-
+            showErrorMsg("Couldn't translate source text");
         }
         indicator.setVisible(false);
         translateBtn.setDisable(false);
@@ -305,7 +307,7 @@ public class LanguageTranslatorController {
         Map<DataFormat,Object> map=new HashMap<>();
         map.put(DataFormat.PLAIN_TEXT,translationBox.getText());
         clipboard.setContent(map);
-        showSuccessMsg("copied to clipboard");
+        showSuccessMsg("Copied to Clipboard");
     }
     @FXML
     public void clearFields(){
@@ -317,23 +319,24 @@ public class LanguageTranslatorController {
         if(service!=null){
             if(service.isRunning()){
                 service.cancel();
-                showSuccessMsg("translation cancelled");
             }
 
         }
     }
     private void showErrorMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #FB1705");
-        setTextIfNotBound(msg);
+        unbindAndSetText(msg);
     }
     private void showSuccessMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #0BC902");
-        setTextIfNotBound(msg);
+        unbindAndSetText(msg);
     }
-    private void setTextIfNotBound(String msg){
-        if(!statusLabel.textProperty().isBound()){
-            statusLabel.setText(msg);
+    private void unbindAndSetText(String msg){
+        if(statusLabel.textProperty().isBound()){
+            statusLabel.textProperty().unbind();
         }
+        statusLabel.setText(msg);
+
     }
 
 }
