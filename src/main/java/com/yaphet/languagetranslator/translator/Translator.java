@@ -65,7 +65,7 @@ public class Translator extends Task<Optional<String>> {
             String targetLang=getLanguageCode(to);
             if(sourceLang==null||targetLang==null){
                 logger.error("Error occurred while retrieving language code");
-                return null;
+                return returnValue;
             }
             updateMessage("translating");
             HttpResponse<String> response = Unirest.get(URL)
