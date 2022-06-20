@@ -47,4 +47,4 @@ This app will help you to translate any language supported by Google translation
 6. Goto` language-translator/src/main/resources/application.properties ` and assign the url to `translator.api.wep-app.url` field.
 
 ## How to run
-To run this app you need to have [Maven](https://maven.apache.org/) and [JDK](https://www.oracle.com/java/technologies/downloads/) installed on yourhttps://www.oracle.com/java/technologies/downloads/https://www.oracle.com/java/technologies/downloads/ machine.
+To run this app you need to have [Maven](https://maven.apache.org/) and [JDK](https://www.oracle.com/java/technologies/downloads/) installed on your machine.
