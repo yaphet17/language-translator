@@ -1,13 +1,13 @@
-package com.yaphet.languagetranslator;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class LanguageTranslatorApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
-
-}
+//package com.yaphet.languagetranslator;
+//
+//import org.junit.jupiter.api.Test;
+//import org.springframework.boot.test.context.SpringBootTest;
+//
+//@SpringBootTest
+//class LanguageTranslatorApplicationTests {
+//
+//    @Test
+//    void contextLoads() {
+//    }
+//
+//}
