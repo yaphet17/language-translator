@@ -39,12 +39,19 @@ This app will help you to translate any language supported by Google translation
 }
 ```
 ## Setup
-1. Got to [Google Apps Script](https://www.google.com/script/start/) ->Click `Start Scripting`.
-2. Create `New project` and replace everything in the editor with the provied script.
-3. Click `Deploy` -> `New Deployment` -> Click the gear icon on the top left corner of the popup.
-4. Select Web app -> Fill all fields and choose `Anyone` for the field `Who has access`.
-5. Copy the generate `Web App` url.
-6. Goto` language-translator/src/main/resources/application.properties ` and assign the url to `translator.api.wep-app.url` field.
-
-## How to run
-To run this app you need to have [Maven](https://maven.apache.org/) and [JDK](https://www.oracle.com/java/technologies/downloads/) installed on your machine.
+ - Host the provided script
+     1. Got to [Google Apps Script](https://www.google.com/script/start/) ->Click `Start Scripting`.
+     2. Create `New project` and replace everything in the editor with the provied script.
+     3. Click `Deploy` -> `New Deployment` -> Click the gear icon on the top left corner of the popup.
+     4. Select Web app -> Fill all fields and choose `Anyone` for the field `Who has access`.
+     5. Copy the generate `Web App` url.
+     6. Goto` language-translator/src/main/resources/application.properties ` and assign the url to `translator.api.wep-app.url` field.
+  - Run the application
+      - You need to have jdk installed in your pc and JAVA_HOME configured in enviroment variables.
+      - Download [Maven](https://maven.apache.org/download.cgi) and configure M2_HOME in enviroment variables.
+      - Clone this repository to your pc
+      - Open the project in you favorite IDE and run it.
+      - After running it you will notice an executable jar file is created in `target` folder. You can use this jar file on any computer 
+      as long as the appropriate JDK is installed.
+  
+  
