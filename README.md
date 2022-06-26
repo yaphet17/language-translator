@@ -38,6 +38,10 @@ This app will help you to translate any language supported by Google translation
   );
 }
 ```
+## Tech Stack
+  - [JavaFX](https://openjfx.io/) for UI.
+  - [Maven](https://maven.apache.org/) for dependency management.
+  - [Unirest](https://github.com/Kong/unirest-java) for making an HTTP request to Google translation API.
 ## Setup
  - Host the provided script
      1. Got to [Google Apps Script](https://www.google.com/script/start/) ->Click `Start Scripting`.
