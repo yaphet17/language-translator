@@ -59,3 +59,4 @@ This app will help you to translate any language supported by Google translation
       as long as the appropriate JDK is installed.
   
   
+![Screenshot from 2022-06-26 21-13-56](https://user-images.githubusercontent.com/78301074/175828531-fa18f4a1-f6f7-4a42-8a8f-2b1622ef9d61.png)
