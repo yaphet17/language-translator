@@ -14,16 +14,16 @@ import java.util.Map;
 public class JsonToMap {
     private  final ClassPathResource languageResource;
 
-
     public Map<String,String> getMap() throws IOException {
-        BufferedReader reader=new BufferedReader(new InputStreamReader(languageResource.getInputStream()));
-        StringBuilder builder=new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(languageResource.getInputStream()));
+        StringBuilder builder = new StringBuilder();
         String line;
-        while((line= reader.readLine())!=null){
+
+        while((line = reader.readLine()) != null){
             builder.append(line);
         }
         reader.close();
-        Gson gson=new Gson();
-        return gson.fromJson(builder.toString(),Map.class);
+        Gson gson = new Gson();
+        return gson.fromJson(builder.toString(), Map.class);
     }
 }

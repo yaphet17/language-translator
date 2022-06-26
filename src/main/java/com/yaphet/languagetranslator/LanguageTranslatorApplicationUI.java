@@ -14,8 +14,10 @@ public class LanguageTranslatorApplicationUI extends Application {
     private ConfigurableApplicationContext applicationContext;
     @Override
     public void init(){
-        applicationContext=new SpringApplicationBuilder(LanguageTranslatorApplication.class)
-                .run(getParameters().getRaw().toArray(new String[0]));
+        applicationContext = new SpringApplicationBuilder(LanguageTranslatorApplication.class)
+                .run(getParameters()
+                        .getRaw()
+                        .toArray(new String[0]));
     }
     @Override
     public void stop(){

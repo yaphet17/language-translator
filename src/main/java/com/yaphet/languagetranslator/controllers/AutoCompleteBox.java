@@ -15,7 +15,6 @@ class AutoCompleteBox<T> implements EventHandler<KeyEvent>{
     public AutoCompleteBox(final ComboBox<T> comboBox) {
         this.comboBox = comboBox;
         this.data = comboBox.getItems();
-
         this.doAutoCompleteBox();
     }
 

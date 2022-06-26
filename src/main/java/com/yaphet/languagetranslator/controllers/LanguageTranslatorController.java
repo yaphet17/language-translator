@@ -65,7 +65,7 @@ public class LanguageTranslatorController {
             String resourceName = "application.properties";
             Properties properties = PropertiesLoader.loadProperties(resourceName);
             languageResource = new ClassPathResource(properties.getProperty("translator.api.languages.json"));
-            defaultSourceLang=properties.getProperty("translator.api.default.source-lang");
+            defaultSourceLang = properties.getProperty("translator.api.default.source-lang","English");
         } catch (IOException e) {
             logger.error("failed to load properties file");
         }
@@ -73,8 +73,7 @@ public class LanguageTranslatorController {
 
     @FXML
     public void initialize() {
-        chooseFile=new Stage();
-
+        chooseFile = new Stage();
         //populate ComboBoxes
         List<String> languageList = getLanguageList();
         if (languageList != null) {
@@ -82,13 +81,11 @@ public class LanguageTranslatorController {
             targetCombo.getItems().addAll(languageList);
             targetCombo.getItems().remove(0);
         }
-
         //Make combo boxes searchable
         new AutoCompleteBox<>(sourceCombo);
         new AutoCompleteBox<>(targetCombo);
-
         //select default source language
-        if(defaultSourceLang!=null){
+        if(defaultSourceLang != null){
             sourceCombo.getSelectionModel().select(defaultSourceLang);
         }
 
@@ -100,21 +97,20 @@ public class LanguageTranslatorController {
             return new ArrayList<>(map.keySet());
         } catch (IOException e) {
             logger.error(e.getMessage());
+            return null;
         }
-        return null;
     }
 
     @FXML
     public void browse() {
         try {
-            File file=getSelectedFile();
-            if(file==null){
+            File file = getSelectedFile();
+            if(file == null){
                 return;
             }
-            String path=file.getAbsolutePath();
+            String path = file.getAbsolutePath();
             browseField.setText(path);
-
-            String fileContent=getFileContent(file);
+            String fileContent = getFileContent(file);
             //show file content in source textarea
             sourceBox.setText(fileContent);
             showSuccessMsg(String.format("File imported from %s",path));
@@ -125,33 +121,35 @@ public class LanguageTranslatorController {
     }
     private File getSelectedFile(){
         File file;
+        String errorMsg;
+
         //check if path is specified in browse field else open choose file window
         if(!browseField.getText().equals("")){
-            file=new File(browseField.getText());
-            if(!file.exists()){
-                showErrorMsg("File not found on specified path");
-            }
+            file = new File(browseField.getText());
+            errorMsg = "File not found on specified path";
         }else{
-            file=chooseFile();
-            if(file==null){
-                showErrorMsg("File not selected");
-            }
+            file = chooseFile();
+            errorMsg = "File not selected";
+        }
+        if(file == null || !file.exists()){
+            showErrorMsg(errorMsg);
         }
         return file;
     }
     private File chooseFile(){
-        FileChooser fileChooser=new FileChooser();
+        FileChooser fileChooser = new FileChooser();
+
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
         fileChooser.setTitle("Choose file");
         return fileChooser.showOpenDialog(chooseFile);
     }
     private String getFileContent(File file) throws IOException {
-        FileInputStream fis=new FileInputStream(file);
-        BufferedReader reader=new BufferedReader(new InputStreamReader(fis));
-
-        StringBuilder builder=new StringBuilder();
+        FileInputStream fis = new FileInputStream(file);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+        StringBuilder builder = new StringBuilder();
         String line;
-        while((line=reader.readLine())!=null){
+
+        while((line = reader.readLine()) != null){
             builder.append(line);
         }
         reader.close();
@@ -191,10 +189,7 @@ public class LanguageTranslatorController {
         service.setOnCancelled(e-> terminatedTranslation("Translation process terminated"));
     }
     private boolean isReadyToTranslate() {
-        if(isSourceTextEmpty()){
-            return false;
-        }
-        if(!isTargetLangSelected()){
+        if(isSourceTextEmpty() || !isTargetLangSelected()){
             return false;
         }
         //clear status label if there are no errors
@@ -232,8 +227,9 @@ public class LanguageTranslatorController {
         translateBtn.setDisable(true);
     }
     private void serviceFailed(Service<Optional<String>> service){
-        //automatic retry for 3 times
-        AtomicInteger fails = new AtomicInteger();
+        AtomicInteger fails = new AtomicInteger(); // automatic retry for 3 times
+
+
         if (fails.get() <= 3) {
             fails.getAndIncrement();
             service.reset();
@@ -245,28 +241,28 @@ public class LanguageTranslatorController {
 
     private void serviceSucceeded() {
         Optional<String > translatedText=service.getValue();
-        if(translatedText.isPresent()){
-            translationBox.setText(translatedText.get());
-            showSuccessMsg("");
-        }else{
+
+        if(!translatedText.isPresent()){
             showErrorMsg("Couldn't translate source text");
+
         }
+        translationBox.setText(translatedText.get());
+        showSuccessMsg("");
         indicator.setVisible(false);
         translateBtn.setDisable(false);
-
     }
 
     @FXML
     public void export() {
         try {
-            File file=chooseSaveFile();
-            if(file==null){
+            File file = chooseSaveFile();
+            if(file == null){
                 showErrorMsg("Directory not selected");
                 return;
             }
-            String path=file.getAbsolutePath();
+            String path = file.getAbsolutePath();
             writeToFile(path);
-            showSuccessMsg(String.format("File exported to %s",path));
+            showSuccessMsg(String.format("File exported to %s", path));
         } catch (IOException e) {
             showErrorMsg("some error occurred while exporting file");
             logger.error(e.getMessage());
@@ -274,14 +270,16 @@ public class LanguageTranslatorController {
 
     }
     private File chooseSaveFile(){
-        FileChooser fileChooser=new FileChooser();
+        FileChooser fileChooser = new FileChooser();
+
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Text files","*.txt"));
         fileChooser.setTitle("Save");
         return fileChooser.showSaveDialog(chooseFile);
     }
     private void writeToFile(String path) throws IOException {
-        FileWriter fileWriter=new FileWriter(path);
-        BufferedWriter writer=new BufferedWriter(fileWriter);
+        FileWriter fileWriter = new FileWriter(path);
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+
         writer.write(translationBox.getText());
         writer.close();
         fileWriter.close();
@@ -289,7 +287,7 @@ public class LanguageTranslatorController {
     @FXML
     public void countCharacters(KeyEvent e) {
         //add (Ctrl+Enter)shortcut key to fire translateBtn
-        if(e.isControlDown()&&e.getCode()== KeyCode.ENTER){
+        if(e.isControlDown()&&e.getCode() == KeyCode.ENTER){
             translateBtn.fire();
             return;
         }
@@ -305,6 +303,7 @@ public class LanguageTranslatorController {
     public void copyToClipboard(){
         Clipboard clipboard=Clipboard.getSystemClipboard();
         Map<DataFormat,Object> map=new HashMap<>();
+
         map.put(DataFormat.PLAIN_TEXT,translationBox.getText());
         clipboard.setContent(map);
         showSuccessMsg("Copied to Clipboard");
@@ -316,12 +315,10 @@ public class LanguageTranslatorController {
     }
     @FXML
     public void cancelTranslation(){
-        if(service!=null){
-            if(service.isRunning()){
-                service.cancel();
-            }
-
+        if(service == null && !service.isRunning()) {
+            return;
         }
+        service.cancel();
     }
     private void showErrorMsg(String msg){
         statusLabel.setStyle("-fx-text-fill: #FB1705");
