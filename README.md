@@ -3,7 +3,7 @@
 This app will help you to translate any language supported by Google translation API from one to another. The best thing about this app is you don't need any 
   subscription(:wink:), you just need Google account to host the script provided below:point_down:.
  
- ```
+ ```js
  function doGet(e) {
   var sourceText = '';
   if (e.parameter.q) {
